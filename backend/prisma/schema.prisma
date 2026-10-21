@@ -1,0 +1,169 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STAFF
+  MANAGER
+  ADMIN
+}
+
+enum WasteReason {
+  OVERPRODUCTION
+  EXPIRED
+  QUALITY
+  CONTAMINATION
+  TEMPERATURE_ABUSE
+  CUSTOMER_RETURN
+  EQUIPMENT_FAILURE
+  OTHER
+}
+
+enum WasteDisposition {
+  TRASH
+  COMPOST
+  DONATION
+  ANIMAL_FEED
+  RECYCLING
+}
+
+model Station {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  code        String   @unique
+  description String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  items           Item[]
+  users           User[]
+  waste_logs      WasteLog[]
+  production_logs ProductionLog[]
+  source_rules    ReuseRule[]     @relation("SourceStation")
+  target_rules    ReuseRule[]     @relation("TargetStation")
+
+  @@map("stations")
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  station_id  String
+  name        String
+  category    String?
+  unit        String
+  lb_per_unit Decimal  @db.Decimal(10, 2)
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  station         Station         @relation(fields: [station_id], references: [id])
+  waste_logs      WasteLog[]
+  production_logs ProductionLog[]
+  source_rules    ReuseRule[]     @relation("SourceItem")
+
+  @@map("items")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String
+  role          Role
+  station_id    String?
+  password_hash String
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  // Relations
+  station               Station?        @relation(fields: [station_id], references: [id])
+  waste_logs            WasteLog[]      @relation("WasteLogger")
+  production_logs       ProductionLog[] @relation("ProductionLogger")
+  deleted_waste_logs    WasteLog[]      @relation("WasteDeleter")
+  deleted_production_logs ProductionLog[] @relation("ProductionDeleter")
+
+  @@map("users")
+}
+
+model WasteLog {
+  id          String             @id @default(uuid())
+  station_id  String
+  item_id     String
+  logged_by   String
+  shift_date  DateTime           @db.Date
+  quantity    Int
+  weight_lbs  Decimal            @db.Decimal(10, 2)
+  reason      WasteReason
+  disposition WasteDisposition?
+  notes       String?
+  created_at  DateTime           @default(now())
+  updated_at  DateTime           @updatedAt
+  deleted_at  DateTime?
+  deleted_by  String?
+
+  // Relations
+  station Station @relation(fields: [station_id], references: [id])
+  item    Item    @relation(fields: [item_id], references: [id])
+  user    User    @relation("WasteLogger", fields: [logged_by], references: [id])
+  deleter User?   @relation("WasteDeleter", fields: [deleted_by], references: [id])
+
+  @@index([deleted_at])
+  @@index([shift_date])
+  @@index([station_id])
+  @@map("waste_logs")
+}
+
+model ProductionLog {
+  id         String    @id @default(uuid())
+  station_id String
+  item_id    String
+  logged_by  String
+  shift_date DateTime  @db.Date
+  quantity   Int
+  weight_lbs Decimal   @db.Decimal(10, 2)
+  notes      String?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+  deleted_by String?
+
+  // Relations
+  station Station @relation(fields: [station_id], references: [id])
+  item    Item    @relation(fields: [item_id], references: [id])
+  user    User    @relation("ProductionLogger", fields: [logged_by], references: [id])
+  deleter User?   @relation("ProductionDeleter", fields: [deleted_by], references: [id])
+
+  @@index([deleted_at])
+  @@index([shift_date])
+  @@index([station_id])
+  @@map("production_logs")
+}
+
+model ReuseRule {
+  id                 String   @id @default(uuid())
+  source_station_id  String
+  source_item_id     String
+  target_station_id  String
+  target_use         String
+  confidence_score   Decimal  @db.Decimal(3, 2)
+  is_active          Boolean  @default(true)
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  // Relations
+  source_station Station @relation("SourceStation", fields: [source_station_id], references: [id])
+  source_item    Item    @relation("SourceItem", fields: [source_item_id], references: [id])
+  target_station Station @relation("TargetStation", fields: [target_station_id], references: [id])
+
+  @@map("reuse_rules")
+}
