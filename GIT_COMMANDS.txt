@@ -1,0 +1,91 @@
+# Git Commands for Upload
+
+YOUR REPOSITORY:
+https://github.com/wiglenielrosahdz-ship-it/Maxwell-Waste-Management-System
+
+## Quick Option: Run the Batch File
+Just double-click: UPLOAD_NOW.bat
+(This will run all commands below automatically)
+
+## Manual Option: PowerShell Commands
+
+### Step 1: Open PowerShell in Project Directory
+cd c:\Users\ASUS\Documents\aws-projects
+
+### Step 2: Initialize Repository
+git init
+
+### Step 3: Add All Files
+git add .
+
+### Step 4: Check What Will Be Committed (Optional)
+git status
+
+### Step 5: Create Initial Commit
+git commit -m "feat: add Maxwell Waste Tracker specifications
+
+Complete specification repository for food waste tracking system:
+- Product requirements and technical standards
+- 6 implementation specs with 166 EARS requirements
+- Foundation, Auth, Logging, Analytics, Dashboard, Demo
+- Detailed implementation guide
+- Architecture documentation
+- Testing requirements for 80%+ coverage"
+
+### Step 6: Add Remote
+git remote add origin https://github.com/wiglenielrosahdz-ship-it/Maxwell-Waste-Management-System.git
+
+### Step 7: Rename Branch to Main
+git branch -M main
+
+### Step 8: Push to GitHub
+git push -u origin main
+
+## If Repository Already Has Content
+If you get an error about existing content:
+git pull origin main --allow-unrelated-histories
+git push -u origin main
+
+## Alternative: Using GitHub CLI
+gh repo view wiglenielrosahdz-ship-it/Maxwell-Waste-Management-System
+git remote add origin https://github.com/wiglenielrosahdz-ship-it/Maxwell-Waste-Management-System.git
+git branch -M main
+git push -u origin main
+
+## Verify Upload
+After pushing, go to:
+https://github.com/wiglenielrosahdz-ship-it/Maxwell-Waste-Management-System
+
+Check that:
+✓ README.md displays with Mermaid diagram
+✓ All files are present (13 files total)
+✓ .kiro/ directory is there with all specs
+✓ QUICKSTART.md and IMPLEMENTATION_GUIDE.md are readable
+
+## After Upload - Add Repository Settings
+
+### Topics/Tags to Add:
+Go to repository settings and add these topics:
+- food-waste
+- waste-reduction
+- specifications
+- typescript
+- react
+- prisma
+- postgresql
+- analytics
+- sustainability
+- dining-facilities
+
+### Description to Add:
+Comprehensive specifications for Maxwell Waste Tracker - AI-powered food waste tracking and reduction system for dining facilities. 166 EARS requirements across 6 implementation specs.
+
+### Enable:
+✓ Issues (for questions)
+✓ Discussions (for implementation help)
+
+## Next Steps After Upload
+1. Verify upload was successful
+2. Share repository link
+3. Clone in new location to test
+4. Ready for implementation!
